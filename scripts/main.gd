@@ -350,7 +350,7 @@ func _sphere(label: String, pos: Vector3, radius: float, tint: Color) -> void:
 func _build_player() -> void:
 	var player := CharacterBody3D.new()
 	player.name = "Player"
-	player.position = Vector3(0, 1.5, 145)
+	player.position = Vector3(0, 1.5, 14)
 	player.set_script(PLAYER_SCRIPT)
 	add_child(player)
 
