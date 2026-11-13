@@ -37,10 +37,11 @@ func _build_world() -> void:
 	_box("North road", Vector3(0, 0.02, -35), Vector3(100, 0.05, 12), SAND)
 
 	# Outer battlefield boundary walls and corner watch posts.
-	_box("North boundary", Vector3(0, 3, -69), Vector3(140, 6, 2), DARK_STONE)
-	_box("South boundary", Vector3(0, 3, 69), Vector3(140, 6, 2), DARK_STONE)
-	_box("West boundary", Vector3(-69, 3, 0), Vector3(2, 6, 140), DARK_STONE)
-	_box("East boundary", Vector3(69, 3, 0), Vector3(2, 6, 140), DARK_STONE)
+	# Natural rocky perimeter instead of giant flat box walls.
+	_rock_ridge(Vector3(0, -1, -68), Vector3(145, 7, 9))
+	_rock_ridge(Vector3(0, -1, 68), Vector3(145, 7, 9))
+	_rock_ridge(Vector3(-68, -1, 0), Vector3(9, 7, 145))
+	_rock_ridge(Vector3(68, -1, 0), Vector3(9, 7, 145))
 	_watch_tower(Vector3(-57, 0, -56), 11)
 	_watch_tower(Vector3(57, 0, -56), 11)
 	_watch_tower(Vector3(-57, 0, 56), 11)
@@ -69,6 +70,14 @@ func _build_main_fort() -> void:
 	_watch_tower(Vector3(31, 0, -59), 15)
 	_watch_tower(Vector3(-31, 0, -19), 12)
 	_watch_tower(Vector3(31, 0, -19), 12)
+	# Stone courses, arrow slits and crenellations make the fort read as masonry.
+	for x in range(-28, 29, 4):
+		_box("North wall merlon", Vector3(x, 10.8, -60), Vector3(2.2, 1.8, 2.2), DARK_STONE)
+	for x in [-22, -14, 14, 22]:
+		_box("Fort arrow slit", Vector3(x, 5.8, -17.35), Vector3(0.65, 2.0, 0.2), Color(0.16, 0.12, 0.09))
+	for z in [-53, -45, -37, -29]:
+		_box("Keep side buttress", Vector3(-9.3, 3, z), Vector3(1.4, 6, 1.5), STONE)
+		_box("Keep side buttress", Vector3(9.3, 3, z), Vector3(1.4, 6, 1.5), STONE)
 
 	# Inner keep and a damaged tower-like structure.
 	_box("Fort keep lower", Vector3(0, 3, -47), Vector3(18, 6, 14), DARK_STONE)
@@ -125,11 +134,58 @@ func _build_house(pos: Vector3, tint: Color, width: float, depth: float) -> void
 	_box("House roof remains", pos + Vector3(-1, 4.5, -1), Vector3(width * 0.55, 0.8, depth), DARK_STONE)
 
 func _watch_tower(pos: Vector3, height: float) -> void:
-	_box("Fort watch tower base", pos + Vector3(0, height / 2.0, 0), Vector3(9, height, 9), STONE)
-	_box("Tower top platform", pos + Vector3(0, height + 0.5, 0), Vector3(11, 1, 11), DARK_STONE)
+	_cylinder("Round stone tower", pos + Vector3(0, height / 2.0, 0), 5.2, height, STONE)
+	_cylinder("Tower upper band", pos + Vector3(0, height - 1.0, 0), 5.6, 1.0, DARK_STONE)
+	_cylinder("Tower parapet", pos + Vector3(0, height + 0.5, 0), 6.0, 1.0, STONE)
 	for x in [-4, 0, 4]:
 		_box("Tower merlon", pos + Vector3(x, height + 1.5, -4), Vector3(1.5, 2, 1.5), STONE)
 	_box("Tower damaged opening", pos + Vector3(0, height * 0.55, 4.56), Vector3(2.4, 3.2, 0.15), Color(0.18, 0.15, 0.12))
+
+func _cylinder(label: String, pos: Vector3, radius: float, height: float, tint: Color) -> void:
+	var body := StaticBody3D.new()
+	body.name = label
+	body.position = pos
+	add_child(body)
+	var mesh_instance := MeshInstance3D.new()
+	var mesh := CylinderMesh.new()
+	mesh.top_radius = radius
+	mesh.bottom_radius = radius * 1.08
+	mesh.height = height
+	mesh.radial_segments = 12
+	mesh_instance.mesh = mesh
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = tint
+	mat.roughness = 0.95
+	mesh_instance.material_override = mat
+	body.add_child(mesh_instance)
+	var collision := CollisionShape3D.new()
+	var shape := CylinderShape3D.new()
+	shape.radius = radius
+	shape.height = height
+	collision.shape = shape
+	body.add_child(collision)
+
+func _rock_ridge(pos: Vector3, size: Vector3) -> void:
+	var body := StaticBody3D.new()
+	body.name = "Rocky battlefield ridge"
+	body.position = pos
+	add_child(body)
+	var mesh_instance := MeshInstance3D.new()
+	var mesh := SphereMesh.new()
+	mesh.radius = 1.0
+	mesh.height = 2.0
+	mesh_instance.mesh = mesh
+	mesh_instance.scale = size * 0.5
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = DARK_STONE
+	mat.roughness = 1.0
+	mesh_instance.material_override = mat
+	body.add_child(mesh_instance)
+	var collision := CollisionShape3D.new()
+	var shape := BoxShape3D.new()
+	shape.size = size
+	collision.shape = shape
+	body.add_child(collision)
 
 func _pillar(label: String, pos: Vector3, height: float, tint: Color) -> void:
 	_box(label, pos + Vector3(0, height / 2.0, 0), Vector3(1.8, height, 1.8), tint)
