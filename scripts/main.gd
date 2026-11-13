@@ -219,7 +219,7 @@ func _build_villages() -> void:
 	_cylinder("Village well", Vector3(95,1,12), 2.5,2,DARK_STONE)
 
 func _build_house(pos: Vector3, width: float, depth: float) -> void:
-	var tint := [Color(0.62,0.43,0.29),Color(0.72,0.58,0.39),Color(0.49,0.42,0.33)][rng.randi_range(0,2)]
+	var tint: Color = [Color(0.62,0.43,0.29), Color(0.72,0.58,0.39), Color(0.49,0.42,0.33)][rng.randi_range(0, 2)]
 	_box("Village mud house rear", pos+Vector3(0,2,-depth/2), Vector3(width,4,0.8), tint)
 	_box("Village mud house left", pos+Vector3(-width/2,2,0), Vector3(0.8,4,depth), tint)
 	_box("Village mud house right", pos+Vector3(width/2,1.5,1), Vector3(0.8,3,depth*0.6), tint)
